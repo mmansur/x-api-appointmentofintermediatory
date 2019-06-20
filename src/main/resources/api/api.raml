@@ -1,0 +1,104 @@
+#%RAML 1.0
+version: 1.0.0
+title: Product API
+baseUri: http://localhost:8081/api
+
+traits:
+  headers: !include /exchange_modules/2bb6a8c2-4878-4501-b9f8-9564b76d4e58/rest-headers-trait/1.0.0/rest-headers-trait.raml
+  collection: !include /exchange_modules/2bb6a8c2-4878-4501-b9f8-9564b76d4e58/pageable-trait/1.0.0/pageable-trait.raml
+  client-id-secured: !include /exchange_modules/2bb6a8c2-4878-4501-b9f8-9564b76d4e58/client-id-secured-trait/1.0.0/client-id-secured.raml
+
+uses:
+  Product: /exchange_modules/2bb6a8c2-4878-4501-b9f8-9564b76d4e58/product-datatype/1.0.0/product-datatype.raml
+  Error: /exchange_modules/2bb6a8c2-4878-4501-b9f8-9564b76d4e58/error-datatype/1.0.0/error-datatype.raml
+types:
+  objectName: Product.product
+
+/product:
+  displayName: Products
+  get:
+    description: |
+      Retrieve all the Products.
+    is: [ headers, collection, client-id-secured]
+    queryParameters:
+      name:
+        displayName: Product Name
+        required: false
+      category:
+        displayName: Product Category
+        required: false
+    responses:
+      200:
+        body:
+          application/json:
+            type: objectName[]
+            examples: !include examples/collection.raml
+      400:
+        body:
+          application/json:
+            type: Error.error
+            example: |
+              {
+                "message": "Bad message"
+              }
+      404:
+        body:
+          application/json:
+            type: Error.error
+            example: |
+              {
+                "message": "No product found with that name"
+              }
+  post:
+    is: [client-id-secured, headers]
+    description: Create a new Product.
+    body:
+      application/json:
+        type: objectName
+        examples: !include examples/single.raml
+    responses:
+      201:
+        body:
+          application/json:
+            type: objectName
+            examples: !include examples/single.raml
+  /{id}:
+    displayName: Product ID
+    description: Get Product by ID
+    uriParameters:
+      id:
+        type: integer
+        minimum: 0
+        example: 35
+    get:
+      is: [client-id-secured, headers]
+      responses:
+        200:
+          body:
+            application/json:
+              type: objectName
+              examples: !include examples/single.raml
+        404:
+          body:
+            application/json:
+              type: Error.error
+              example: |
+                {
+                  "message": "Resource not found"
+                }
+    put:
+      is: [headers, client-id-secured]
+      body:
+        application/json:
+          type: objectName
+          examples: !include examples/single.raml
+      responses:
+        204:
+    delete:
+      is: [client-id-secured]
+      body:
+        application/json:
+          type: objectName
+          examples: !include examples/single.raml
+      responses:
+        204:

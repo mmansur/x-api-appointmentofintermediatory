@@ -1,0 +1,43 @@
+#%RAML 1.0
+version: v1
+baseUri: https://anypoint.mulesoft.com/mocking/api/v1/links/0ce214df-eb0a-4664-863a-b44c0775c8fc/ # 
+title: X-API - Appointment of Intermediatory
+
+traits:
+  jwt:
+    headers:
+      authorization:
+        description: Bearer 
+        type: string
+    responses:
+      400:
+        description: Token was not provided.
+      401:
+        description: Bad or expired token. To fix, you should re-authenticate the user.
+      403:
+        description: The client id validation failed.
+      503:
+        description: Error communicating with JWKS server.
+
+
+
+/intermediatory:
+  /{intermediatoryID}:
+    /mortgage:
+      /{mortgageID}:
+        /lender:
+          /{lenderID}:
+            put:
+              is: [jwt]
+              body:
+                application/json:
+              responses:
+                200:
+                  body:
+                    application/json:
+                      example: |
+                        {
+                          "Confimation": "ok"
+                        }
+                      
+            
